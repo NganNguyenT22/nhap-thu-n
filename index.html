@@ -60,16 +60,10 @@
                 <div class="px-3 mt-3 mb-1 small fw-bold text-uppercase" style="color: #6c7293;">Nghiệp vụ</div>
                 
                 <!-- Menu hiển thị linh hoạt theo chức năng -->
-				<a class="nav-link role-section view-cap hidden-feature" onclick="switchPage('page-cont-cap')">
-    				<i class="bi bi-box-arrow-up-right"></i> QL. Cấp rỗng
-				</a>
-				<li class="nav-item" style="display: none;">
-					<a class="nav-link role-section view-nhap" onclick="switchPage('page-cont-nhap')"><i class="bi bi-box-arrow-in-right"></i> QL. Nhập Bãi / Vị trí</a>
-                </li>
-				
-				<li class="nav-item" style="display: none;">
-					<a class="nav-link role-section view-cap" onclick="switchPage('page-cont-cap')"><i class="bi bi-box-arrow-up-right"></i> QL. Cấp Rỗng</a>
-                </li>
+				<div style="display: none !important;">
+    				<a class="nav-link role-section view-cap" onclick="switchPage('page-cont-cap')">QL. Cấp rỗng</a>
+    				<a class="nav-link role-section view-nhap" onclick="switchPage('page-cont-nhap')">QL. Nhập Bãi / Vị trí</a>
+				</div>
 				
 				<!--adding-->
                 <a class="nav-link role-section view-dieudo" onclick="switchPage('page-quanlylenh')"> <i class="bi bi-clipboard-check"></i> QL. Lệnh</a>
