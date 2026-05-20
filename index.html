@@ -60,7 +60,26 @@
                 <div class="px-3 mt-3 mb-1 small fw-bold text-uppercase" style="color: #6c7293;">Nghiệp vụ</div>
                 
                 <!-- Menu hiển thị linh hoạt theo chức năng -->
-                
+
+				<div class="sidebar-dropdown role-section view-nhap">
+    				<a href="#" class="nav-link text-white d-flex align-items-center" onclick="toggleSubmenu(event, 'submenu-tonbai')">
+        				<i class="bi bi-stack me-2"></i> <span>QL. Tồn bãi</span>
+        				<i class="bi bi-chevron-down ms-auto small transition-icon" id="icon-tonbai"></i>
+    				</a>
+    				<div class="submenu d-none ps-3" id="submenu-tonbai">
+        			<a href="#" class="nav-item text-white-50 py-2 d-block small text-decoration-none" onclick="switchPage('page-cont-nhap')">
+            			<i class="bi bi-geo-alt me-2"></i> QL. Vị trí
+        			</a>
+        			<a href="#" class="nav-item text-white-50 py-2 d-block small text-decoration-none" onclick="switchPage('page-cont-nhap')">
+            			<i class="bi bi-list-ul me-2"></i> QL. Danh sách tồn
+        			</a>
+    				</div>
+				</div>
+
+				<a class="nav-link role-section view-cap hidden-feature" onclick="switchPage('page-cont-cap')">
+    				<i class="bi bi-box-arrow-up-right"></i> QL. Cấp rỗng
+				</a>
+				
 				<li class="nav-item" style="display: none;">
 					<a class="nav-link role-section view-nhap" onclick="switchPage('page-cont-nhap')"><i class="bi bi-box-arrow-in-right"></i> QL. Nhập Bãi / Vị trí</a>
                 </li>
