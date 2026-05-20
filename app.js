@@ -646,8 +646,9 @@ async function saveEirData() {
         eirModal.hide();
         setTimeout(() => {
             alert("Lưu phiếu EIR Hạ Rỗng thành công!");
-            loadGiaoNhanData('HaRong');
-        }, 1200);
+            switchGiaoNhanTab('HaRong');
+            showLoading(false);
+        }, 500);
     } catch(e) {
         alert("Lỗi kết nối khi lưu phiếu EIR!");
         showLoading(false);
@@ -899,7 +900,8 @@ async function saveEirCapData() {
         setTimeout(() => {
             alert("Lưu phiếu EIR Cấp Rỗng thành công!");
             switchGiaoNhanTab('CapRong');
-        }, 1000);
+            showLoading(false);
+        }, 500);
     } catch (err) {
         alert("Lỗi máy chủ khi lưu phiếu!");
         showLoading(false);
