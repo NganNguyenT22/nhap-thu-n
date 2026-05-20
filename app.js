@@ -599,7 +599,19 @@ function openEirModal(mode, rowIndex = null) {
 
 async function saveEirData() {
     const rowIndex = document.getElementById('eir_rowIndex').value;
-    
+    // 1. LẤY SỐ BOOKING VÀ KIỂM TRA TRƯỚC KHI LƯU
+    const bookingGhiNhan = document.getElementById('eir_booking').value.trim();
+    if (!bookingGhiNhan) {
+        alert("Vui lòng nhập số Booking!");
+        return;
+    }
+
+    const isBookingDung = await checkBookingHopLe(bookingGhiNhan);
+    if (!isBookingDung) {
+        alert("Nhập sai! Số Booking không tồn tại trong hệ thống QL. Lệnh.");
+        return; // Chặn lưu dữ liệu
+    }
+    //ktra booking
     // Mảng dữ liệu bốc từ form xếp đúng thứ tự cột tiêu đề của Google Sheets
     const rowData = [
         "", // Cột STT tự động bỏ qua để tính sau hoặc để trống
@@ -837,7 +849,19 @@ function openEirCapModal(mode, rowIndex = null) {
 // Lưu phiếu Cấp Rỗng về Google Sheets
 async function saveEirCapData() {
     const rowIndex = document.getElementById('eirCap_rowIndex').value;
-    
+    // 1. LẤY SỐ BOOKING VÀ KIỂM TRA TRƯỚC KHI LƯU
+    const bookingGhiNhan = document.getElementById('eirCap_booking').value.trim();
+    if (!bookingGhiNhan) {
+        alert("Vui lòng nhập số Booking!");
+        return;
+    }
+
+    const isBookingDung = await checkBookingHopLe(bookingGhiNhan);
+    if (!isBookingDung) {
+        alert("Nhập sai! Số Booking không tồn tại trong hệ thống QL. Lệnh.");
+        return; // Chặn lưu dữ liệu
+    }
+    //ktra booking
     const rowValues = [
         "", // Cột STT tự sinh trên sheet
         document.getElementById('eirCap_macont').value.trim().toUpperCase(),
@@ -1523,3 +1547,28 @@ function renderSuaChuaPage() {
     });
 }
 //==========Giam dinh
+// HÀM KIỂM TRA BOOKING TỒN TẠI TRONG QL. LỆNH
+async function checkBookingHopLe(bookingInput) {
+    if (!bookingInput) return false;
+    const cleanInput = bookingInput.trim().toLowerCase();
+
+    // Nếu mảng dữ liệu Lệnh (globalDataLenh) đang rỗng, tự động fetch từ Sheets về
+    if (!window.globalDataLenh || window.globalDataLenh.length === 0) {
+        try {
+            showLoading(true);
+            const res = await fetch(API_URL + "?type=QuanLyLenh");
+            window.globalDataLenh = await res.json();
+            showLoading(false);
+        } catch (e) {
+            console.error("Lỗi tải dữ liệu lệnh:", e);
+            showLoading(false);
+            return false;
+        }
+    }
+
+    // Quét đối chiếu với cột Booking ID từ QL. Lệnh
+    return window.globalDataLenh.some(row => {
+        const idRaw = row["Booking ID"] || row["Booking id"] || row["Booking ID "] || '';
+        return idRaw.toString().trim().toLowerCase() === cleanInput;
+    });
+}
