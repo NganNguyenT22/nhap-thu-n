@@ -872,45 +872,41 @@
     </div>
 </div>
 <!--vị trí-->
-<div class="modal fade" id="modalViTri" text-dark tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="modalThemViTri" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content shadow-lg border-0">
-            <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title fw-bold" id="modalViTriTitle"><i class="bi bi-geo-fill me-2"></i> Cấu hình Vị trí Container</h5>
+        <div class="modal-content shadow border-0">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title fw-bold"><i class="bi bi-geo-fill me-2"></i> Định Vị Container Vào Bãi</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form id="form-vitri-container" onsubmit="handleSaveViTri(event)">
+            <form id="form-them-vitri" onsubmit="handleSaveThemViTri(event)">
                 <div class="modal-body p-4 text-dark">
-                    <input type="hidden" id="vitri-action-type" value="create">
-                    
                     <div class="mb-3">
                         <label class="form-label small fw-bold text-dark">Số Container <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control text-uppercase fw-bold" id="vitri-nocont" required placeholder="Ví dụ: TGBU1234567">
-                        <div class="form-text text-muted">Nhập chính xác số container cần cấu hình tọa độ bãi.</div>
+                        <input type="text" class="form-control text-uppercase fw-bold border-secondary" id="txt-vitri-nocont" required placeholder="Ví dụ: SOTU1234567">
                     </div>
-                    
                     <div class="row g-3">
                         <div class="col-6">
                             <label class="form-label small fw-bold text-dark">Bay (Dãy)</label>
-                            <input type="text" class="form-control text-center text-uppercase" id="vitri-bay" placeholder="01, 02...">
+                            <input type="text" class="form-control text-center text-uppercase border-secondary" id="txt-vitri-bay" placeholder="Ví dụ: 01">
                         </div>
                         <div class="col-6">
                             <label class="form-label small fw-bold text-dark">Row (Hàng)</label>
-                            <input type="text" class="form-control text-center text-uppercase" id="vitri-row" placeholder="A, B, C...">
+                            <input type="text" class="form-control text-center text-uppercase border-secondary" id="txt-vitri-row" placeholder="Ví dụ: A">
                         </div>
                         <div class="col-6">
                             <label class="form-label small fw-bold text-dark">Column (Cột)</label>
-                            <input type="text" class="form-control text-center text-uppercase" id="vitri-col" placeholder="01, 02...">
+                            <input type="text" class="form-control text-center text-uppercase border-secondary" id="txt-vitri-col" placeholder="Ví dụ: 03">
                         </div>
                         <div class="col-6">
                             <label class="form-label small fw-bold text-dark">Tier (Tầng)</label>
-                            <input type="number" class="form-control text-center" id="vitri-tier" min="1" max="6" placeholder="1-6">
+                            <input type="number" class="form-control text-center border-secondary" id="txt-vitri-tier" min="1" max="6" placeholder="Từ 1-6">
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer bg-light">
-                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Hủy bỏ</button>
-                    <button type="submit" class="btn btn-primary btn-sm fw-bold"><i class="bi bi-save me-1"></i> Lưu thông tin</button>
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Đóng</button>
+                    <button type="submit" class="btn btn-success btn-sm fw-bold"><i class="bi bi-save me-1"></i> Xác nhận lưu</button>
                 </div>
             </form>
         </div>
