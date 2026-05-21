@@ -1728,3 +1728,87 @@ async function checkBookingHopLe(bookingInput) {
         return idRaw.toString().trim().toLowerCase() === cleanInput;
     });
 }
+// ==================== BỔ SUNG NGHIỆP VỤ QUẢN LÝ VỊ TRÍ CONTAINER ====================
+window.globalDataViTri = []; // Biến lưu trữ toàn cục danh sách vị trí bãi
+
+// 1. Hàm nạp dữ liệu từ Google Sheets về hệ thống
+async function loadDataViTri() {
+    const tbody = document.getElementById('tbody-quanly-vitri');
+    if (tbody) {
+        tbody.innerHTML = `<tr><td colspan="7" class="text-muted py-4"><div class="spinner-border spinner-border-sm text-primary me-2"></div>Đang tải dữ liệu vị trí bãi...</td></tr>`;
+    }
+    
+    try {
+        // Gọi API lấy dữ liệu từ tab tính có tên ViTri (hoặc ContNhap tùy theo cấu hình của bạn)
+        const res = await fetch(API_URL + "?type=ContNhap"); 
+        const data = await res.json();
+        
+        window.globalDataViTri = data;
+        renderDanhSachViTri(window.globalDataViTri);
+    } catch (e) {
+        console.error("Lỗi tải dữ liệu vị trí bãi:", e);
+        if (tbody) {
+            tbody.innerHTML = `<tr><td colspan="7" class="text-danger py-4"><i class="bi bi-exclamation-triangle-fill me-2"></i>Không thể kết nối dữ liệu. Vui lòng thử lại!</td></tr>`;
+        }
+    }
+}
+
+// 2. Hàm dựng (Render) dữ liệu vị trí lên bảng giao diện HTML
+function renderDanhSachViTri(data) {
+    const tbody = document.getElementById('tbody-quanly-vitri');
+    if (!tbody) return;
+    
+    let html = "";
+    if (!data || data.length === 0) {
+        html = `<tr><td colspan="7" class="text-muted py-4">Không tìm thấy dữ liệu vị trí container nào trên bãi.</td></tr>`;
+    } else {
+        data.forEach((row, index) => {
+            // Tách chuỗi tọa độ (Ví dụ: "B1-R2-C3-T4" hoặc lấy dữ liệu từ các cột tương ứng)
+            const viTriGoc = row["Bãi"] || row["Vị trí"] || "";
+            let bay = "-", rowCont = "-", colCont = "-", tier = "-";
+            
+            if (viTriGoc && viTriGoc.includes("-")) {
+                const parts = viTriGoc.split("-");
+                bay = parts[0] || "-";
+                rowCont = parts[1] || "-";
+                colCont = parts[2] || "-";
+                tier = parts[3] || "-";
+            } else {
+                bay = viTriGoc || "-";
+            }
+
+            html += `
+            <tr>
+                <td class="text-secondary fw-bold">${index + 1}</td>
+                <td class="fw-bold text-primary">${row["Số Container"] || row["Mã container"] || '-'}</td>
+                <td class="fw-bold text-dark">${bay}</td>
+                <td><span class="badge bg-light text-dark border px-2 py-1">${rowCont}</span></td>
+                <td><span class="badge bg-light text-dark border px-2 py-1">${colCont}</span></td>
+                <td><span class="badge bg-light text-dark border px-2 py-1">${tier}</span></td>
+                <td>
+                    <div class="btn-group btn-group-sm">
+                        <button class="btn btn-outline-primary" title="Sửa vị trí" onclick="openModalEditViTri(${row.rowIndex}, '${row["Số Container"]}', '${viTriGoc}')">
+                            <i class="bi bi-pencil-square"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>`;
+        });
+    }
+    tbody.innerHTML = html;
+}
+
+// 3. Hàm xử lý cho nút làm mới (Refresh)
+function refreshViTriData() {
+    loadDataViTri();
+}
+
+// 4. Định nghĩa các hàm xử lý đóng mở Form thêm mới vị trí
+function openModalThemViTri() {
+    // Nếu bạn có modal thêm vị trí (ví dụ: modalFormViTri), kích hoạt hiển thị tại đây:
+    alert("Tính năng mở Form thêm vị trí: Bạn có thể liên kết hiển thị một Modal nhập liệu tại đây.");
+}
+
+function openModalEditViTri(rowIndex, containerNo, currentPosition) {
+    alert(`Chỉnh sửa vị trí container: ${containerNo}\nVị trí hiện tại: ${currentPosition}`);
+}
