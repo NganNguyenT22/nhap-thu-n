@@ -103,7 +103,11 @@ function switchPage(pageId) {
     if(pageId === 'page-cont-cap') loadData('ContCap');
     if(pageId === 'page-users') loadUsers();
     if(pageId === 'page-quanlylenh') loadQuanLyLenh();
-    
+    //Chèn vị trí
+    if (pageId === 'page-cont-nhap') {
+        loadDataViTri();
+    }
+    //Chèn vị trí
     // Đã đồng bộ tích hợp: Điều hướng trang Giao Nhận bóc tách độc lập
     if(pageId === 'page-harong' || pageId === 'page-giaonhan') { 
         switchGiaoNhanTab('HaRong'); 
@@ -1303,6 +1307,154 @@ function handleTraCuuCap() {
             a.download = `BaoCao_${type}_${new Date().getTime()}.csv`;
             a.click();
         }
+//===========Quan ly vi tri
+// Khai báo biến lưu dữ liệu vị trí bãi
+let dataViTri = [];
+let bootstrapModalViTri = null;
+
+// 1. Hàm lấy dữ liệu từ Sheet ViTri về ứng dụng khi load trang
+async function loadDataViTri() {
+    try {
+        const res = await fetch(API_URL + "?type=ViTri");
+        dataViTri = await res.json();
+        renderDanhSachViTri();
+    } catch (e) {
+        console.error("Lỗi tải dữ liệu bảng vị trí:", e);
+    }
+}
+
+// 2. Hàm vẽ dữ liệu lên bảng HTML
+function renderDanhSachViTri() {
+    const tbody = document.getElementById('tbody-quanly-vitri');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+
+    if (!dataViTri || dataViTri.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="text-muted py-4">Bãi rỗng - Chưa có container nào được định vị tọa độ.</td></tr>`;
+        return;
+    }
+
+    dataViTri.forEach((row, index) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td class="text-secondary fw-bold">${index + 1}</td>
+            <td class="fw-bold text-primary">${row['Mã container'] || '---'}</td>
+            <td><span class="badge bg-light text-dark border px-2 py-1">${row['Bay'] || '---'}</span></td>
+            <td><span class="badge bg-light text-dark border px-2 py-1">${row['Row'] || '---'}</span></td>
+            <td><span class="badge bg-light text-dark border px-2 py-1">${row['Column'] || '---'}</span></td>
+            <td><span class="badge bg-light text-dark border px-2 py-1">${row['Tier'] || '---'}</span></td>
+            <td>
+                <div class="btn-group">
+                    <button class="btn btn-sm btn-outline-info me-1 p-1 d-inline-flex align-items-center justify-content-center" 
+                            style="width: 28px; height: 28px;" onclick="xemChiTietViTri('${row['Mã container']}')" title="Xem chi tiết">
+                        <i class="bi bi-info-square"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-warning p-1 d-inline-flex align-items-center justify-content-center" 
+                            style="width: 28px; height: 28px;" onclick="openModalSuaViTri('${row['Mã container']}', '${row['Bay']}', '${row['Row']}', '${row['Column']}', '${row['Tier']}')" title="Chỉnh sửa">
+                        <i class="bi bi-pencil-square"></i>
+                    </button>
+                </div>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+// 3. Hàm kích hoạt mở modal Thêm mới
+function openModalThemViTri() {
+    document.getElementById('form-vitri-container').reset();
+    document.getElementById('vitri-action-type').value = 'create';
+    document.getElementById('vitri-nocont').readOnly = false;
+    document.getElementById('modalViTriTitle').innerHTML = '<i class="bi bi-plus-circle-fill me-2"></i> Định vị Container vào bãi mới';
+    
+    if(!bootstrapModalViTri) {
+        bootstrapModalViTri = new bootstrap.Modal(document.getElementById('modalViTri'));
+    }
+    bootstrapModalViTri.show();
+}
+
+// 4. Hàm kích hoạt mở modal để Chỉnh sửa tọa độ cũ
+function openModalSuaViTri(noCont, bay, row, col, tier) {
+    document.getElementById('vitri-action-type').value = 'update';
+    document.getElementById('vitri-nocont').value = noCont;
+    document.getElementById('vitri-nocont').readOnly = true; // Sửa thì không cho đổi số xe container tránh lệch data
+    document.getElementById('vitri-bay').value = bay !== '---' ? bay : '';
+    document.getElementById('vitri-row').value = row !== '---' ? row : '';
+    document.getElementById('vitri-col').value = col !== '---' ? col : '';
+    document.getElementById('vitri-tier').value = tier !== '---' ? tier : '';
+    
+    document.getElementById('modalViTriTitle').innerHTML = '<i class="bi bi-pencil-square me-2"></i> Cập nhật tọa độ vị trí';
+    
+    if(!bootstrapModalViTri) {
+        bootstrapModalViTri = new bootstrap.Modal(document.getElementById('modalViTri'));
+    }
+    bootstrapModalViTri.show();
+}
+
+// 5. Hàm gửi dữ liệu lên Google Sheets để lưu trữ vĩnh viễn
+async function handleSaveViTri(e) {
+    e.preventDefault();
+    
+    const action = document.getElementById('vitri-action-type').value;
+    const noCont = document.getElementById('vitri-nocont').value.trim().toUpperCase();
+    const bay = document.getElementById('vitri-bay').value.trim().toUpperCase();
+    const rowCoord = document.getElementById('vitri-row').value.trim().toUpperCase();
+    const colCoord = document.getElementById('vitri-col').value.trim().toUpperCase();
+    const tier = document.getElementById('vitri-tier').value.trim();
+
+    showLoading(true);
+    
+    try {
+        // Gửi API dạng Form Post hoặc JSON tùy theo cấu trúc Google Apps Script của bạn
+        // Cần đảm bảo hàm doPost trong Apps Script có xử lý cho type 'SaveViTri'
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            mode: 'no-cors', // Dùng chế độ này để tránh lỗi CORS của Google Script nếu chưa xử lý trả về header
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({
+                'action': 'saveViTri',
+                'typeAction': action, // create hoặc update
+                'maCont': noCont,
+                'bay': bay,
+                'row': rowCoord,
+                'column': colCoord,
+                'tier': tier
+            })
+        });
+
+        if(bootstrapModalViTri) bootstrapModalViTri.hide();
+        alert("Thực hiện lưu dữ liệu vị trí hoàn tất!");
+        
+        // Cập nhật mảng local để người dùng thấy ngay kết quả không cần đợi Sheet cập nhật chậm
+        if (action === 'create') {
+            dataViTri.push({ 'Mã container': noCont, 'Bay': bay, 'Row': rowCoord, 'Column': colCoord, 'Tier': tier });
+        } else {
+            const index = dataViTri.findIndex(item => item['Mã container'] === noCont);
+            if(index !== -1) {
+                dataViTri[index] = { 'Mã container': noCont, 'Bay': bay, 'Row': rowCoord, 'Column': colCoord, 'Tier': tier };
+            }
+        }
+        renderDanhSachViTri();
+    } catch (error) {
+        console.error("Lỗi khi lưu vị trí:", error);
+        alert("Lưu thất bại, vui lòng kiểm tra kết nối mạng!");
+    } finally {
+        showLoading(false);
+    }
+}
+
+// Hàm làm mới bảng dữ liệu
+async function refreshViTriData() {
+    showLoading(true);
+    await loadDataViTri();
+    showLoading(false);
+}
+
+// Hàm bổ trợ xem chi tiết khi bấm chữ i
+function xemChiTietViTri(maCont) {
+    alert("Thông tin chi tiết tọa độ bãi của Container: " + maCont);
+}
+//===========Quan ly vi tri
 //===========Giam dinh
 // Toggle menu thả xuống
 function toggleSubmenu(e, id) {
