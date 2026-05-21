@@ -104,8 +104,10 @@ function switchPage(pageId) {
     if(pageId === 'page-users') loadUsers();
     if(pageId === 'page-quanlylenh') loadQuanLyLenh();
     //Chèn vị trí
-    if (pageId === 'page-cont-nhap') {
-        loadDataViTri();
+    if (pageId === 'page-quanly-vitri') {
+      if (typeof loadDataViTri === "function") {
+            loadDataViTri();
+      }
     }
     //Chèn vị trí
     // Đã đồng bộ tích hợp: Điều hướng trang Giao Nhận bóc tách độc lập
