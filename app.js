@@ -1511,7 +1511,9 @@ function renderGiamDinhTable(data) {
         } else {
             badgeRepair = `<div class="text-center text-danger fs-5" title="Không cần sửa chữa"><i class="bi bi-x-circle-fill"></i></div>`;
         }
-
+        const maCont = row['Mã container'] || row['Mã Container'] || row['Số Container'] || '';
+        const sizeCont = row['Size'] || '';
+        const hangTauCont = row['Hãng tàu'] || row['Hãng Tàu'] || '';
         tr.innerHTML = `
             <td class="ps-3 fw-bold text-secondary">${index + 1}</td>
             <td class="fw-bold text-primary">${row['Mã container'] || ''}</td>
