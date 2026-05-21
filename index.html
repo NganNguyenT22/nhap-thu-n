@@ -74,12 +74,12 @@
         				<i class="bi bi-stack me-2"></i> <span>QL. Tồn bãi</span>
         				<i class="bi bi-chevron-down ms-auto small transition-icon" id="icon-tonbai"></i>
     				</a>
-   					<div class="submenu d-none ps-3" id="submenu-tonbai">
-        				<a href="#" class="nav-item text-white-50 py-2 d-block small text-decoration-none" onclick="switchPage('page-quanly-vitri')">
+    				<div class="submenu d-none ps-3" id="submenu-tonbai">
+       	 				<a href="#" class="nav-item text-white-50 py-2 d-block small text-decoration-none" onclick="switchPage('page-quanly-vitri')">
             				<i class="bi bi-geo-alt me-2"></i> QL. Vị trí
         				</a>
         				<a href="#" class="nav-item text-white-50 py-2 d-block small text-decoration-none" onclick="switchPage('page-cont-nhap')">
-            				<i class="bi bi-list-ul me-2"></i> QL. Tồn bãi
+           					<i class="bi bi-list-ul me-2"></i> QL. Tồn bãi
         				</a>
     				</div>
 				</div>
@@ -271,13 +271,13 @@
 			<div id="page-quanly-vitri" class="page-section d-none">
     			<div class="card shadow-sm border-0 mb-4">
         			<div class="card-header bg-primary text-white d-flex align-items-center justify-content-between py-3">
-            			<h5 class="mb-0 fw-bold"><i class="bi bi-geo-alt me-2"></i> Quản Lý Vị Trí Container Tồn Bãi</h5>
+            			<h5 class="mb-0 fw-bold"><i class="bi bi-geo-alt me-2"></i> Danh Sách Vị Trí Container Tồn Bãi</h5>
             			<div>
                 			<button class="btn btn-success btn-sm fw-bold me-2" onclick="openModalThemViTri()">
                     			<i class="bi bi-plus-circle me-1"></i> Thêm vị trí
                 			</button>
                 			<button class="btn btn-light btn-sm fw-bold" onclick="refreshViTriData()">
-                    			<i class="bi bi-arrow-clockwise me-1"></i> Làm mới
+                   		 		<i class="bi bi-arrow-clockwise me-1"></i> Làm mới
                 			</button>
             			</div>
         			</div>
@@ -297,11 +297,52 @@
                     			</thead>
                     			<tbody id="tbody-quanly-vitri">
                         			<tr>
-                            			<td colspan="7" class="text-muted py-4">Đang tải dữ liệu vị trí bãi...</td>
+                            			<td colspan="7" class="text-muted py-4">Đang tải dữ liệu sơ đồ bãi...</td>
                         			</tr>
                     			</tbody>
                 			</table>
             			</div>
+        			</div>
+    			</div>
+			</div>
+
+			<div class="modal fade text-dark" id="modalThemViTri" tabindex="-1" aria-hidden="true">
+    			<div class="modal-dialog modal-dialog-centered">
+       		 		<div class="modal-content shadow border-0">
+            			<div class="modal-header bg-success text-white">
+                			<h5 class="modal-title fw-bold"><i class="bi bi-geo-fill me-2"></i> Định Vị Container Vào Bãi</h5>
+                			<button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            			</div>
+            			<form id="form-them-vitri" onsubmit="handleSaveThemViTri(event)">
+                			<div class="modal-body p-4">
+                    			<div class="mb-3">
+                        			<label class="form-label small fw-bold text-dark">Số Container <span class="text-danger">*</span></label>
+                        			<input type="text" class="form-control text-uppercase fw-bold border-secondary text-dark" id="txt-vitri-nocont" required placeholder="Ví dụ: SOTU1234567">
+                    			</div>
+                    			<div class="row g-3">
+                        			<div class="col-6">
+                            			<label class="form-label small fw-bold text-dark">Bay (Dãy)</label>
+                            			<input type="text" class="form-control text-center text-uppercase border-secondary text-dark" id="txt-vitri-bay" placeholder="Ví dụ: 01">
+                        			</div>
+                        			<div class="col-6">
+                            			<label class="form-label small fw-bold text-dark">Row (Hàng)</label>
+                            			<input type="text" class="form-control text-center text-uppercase border-secondary text-dark" id="txt-vitri-row" placeholder="Ví dụ: A">
+                        			</div>
+                        			<div class="col-6">
+                            			<label class="form-label small fw-bold text-dark">Column (Cột)</label>
+                            			<input type="text" class="form-control text-center text-uppercase border-secondary text-dark" id="txt-vitri-col" placeholder="Ví dụ: 02">
+                        			</div>
+                        			<div class="col-6">
+                            			<label class="form-label small fw-bold text-dark">Tier (Tầng)</label>
+                            			<input type="number" class="form-control text-center border-secondary text-dark" id="txt-vitri-tier" min="1" max="6" placeholder="1-6">
+                        			</div>
+                    			</div>
+                			</div>
+                			<div class="modal-footer bg-light">
+                    			<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Đóng</button>
+                    			<button type="submit" class="btn btn-success btn-sm fw-bold"><i class="bi bi-save me-1"></i> Xác nhận lưu</button>
+                			</div>
+            			</form>
         			</div>
     			</div>
 			</div>
