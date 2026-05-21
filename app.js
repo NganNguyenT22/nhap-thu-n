@@ -1729,76 +1729,117 @@ async function checkBookingHopLe(bookingInput) {
     });
 }
 // ==================== BỔ SUNG NGHIỆP VỤ QUẢN LÝ VỊ TRÍ CONTAINER ====================
-window.globalDataViTri = []; // Biến lưu trữ toàn cục danh sách vị trí bãi
+// ==================== HỆ THỐNG QUẢN LÝ VỊ TRÍ CONTAINER TỒN BÃI ====================
+let localDataViTri = [];
+let modalThemViTriObj = null;
 
-// 1. Hàm nạp dữ liệu từ Google Sheets về hệ thống
+// 1. Hàm tải dữ liệu từ Sheet ViTri
 async function loadDataViTri() {
-    const tbody = document.getElementById('tbody-quanly-vitri');
-    if (tbody) {
-        tbody.innerHTML = `<tr><td colspan="7" class="text-muted py-4"><div class="spinner-border spinner-border-sm text-primary me-2"></div>Đang tải dữ liệu vị trí bãi...</td></tr>`;
-    }
-    
-    try {
-        // Gọi API lấy dữ liệu từ tab tính có tên ViTri (hoặc ContNhap tùy theo cấu hình của bạn)
-        const res = await fetch(API_URL + "?type=ContNhap"); 
-        const data = await res.json();
-        
-        window.globalDataViTri = data;
-        renderDanhSachViTri(window.globalDataViTri);
-    } catch (e) {
-        console.error("Lỗi tải dữ liệu vị trí bãi:", e);
-        if (tbody) {
-            tbody.innerHTML = `<tr><td colspan="7" class="text-danger py-4"><i class="bi bi-exclamation-triangle-fill me-2"></i>Không thể kết nối dữ liệu. Vui lòng thử lại!</td></tr>`;
-        }
-    }
-}
-
-// 2. Hàm dựng (Render) dữ liệu vị trí lên bảng giao diện HTML
-function renderDanhSachViTri(data) {
     const tbody = document.getElementById('tbody-quanly-vitri');
     if (!tbody) return;
     
-    let html = "";
-    if (!data || data.length === 0) {
-        html = `<tr><td colspan="7" class="text-muted py-4">Không tìm thấy dữ liệu vị trí container nào trên bãi.</td></tr>`;
-    } else {
-        data.forEach((row, index) => {
-            // Tách chuỗi tọa độ (Ví dụ: "B1-R2-C3-T4" hoặc lấy dữ liệu từ các cột tương ứng)
-            const viTriGoc = row["Bãi"] || row["Vị trí"] || "";
-            let bay = "-", rowCont = "-", colCont = "-", tier = "-";
-            
-            if (viTriGoc && viTriGoc.includes("-")) {
-                const parts = viTriGoc.split("-");
-                bay = parts[0] || "-";
-                rowCont = parts[1] || "-";
-                colCont = parts[2] || "-";
-                tier = parts[3] || "-";
-            } else {
-                bay = viTriGoc || "-";
-            }
-
-            html += `
-            <tr>
-                <td class="text-secondary fw-bold">${index + 1}</td>
-                <td class="fw-bold text-primary">${row["Số Container"] || row["Mã container"] || '-'}</td>
-                <td class="fw-bold text-dark">${bay}</td>
-                <td><span class="badge bg-light text-dark border px-2 py-1">${rowCont}</span></td>
-                <td><span class="badge bg-light text-dark border px-2 py-1">${colCont}</span></td>
-                <td><span class="badge bg-light text-dark border px-2 py-1">${tier}</span></td>
-                <td>
-                    <div class="btn-group btn-group-sm">
-                        <button class="btn btn-outline-primary" title="Sửa vị trí" onclick="openModalEditViTri(${row.rowIndex}, '${row["Số Container"]}', '${viTriGoc}')">
-                            <i class="bi bi-pencil-square"></i>
-                        </button>
-                    </div>
-                </td>
-            </tr>`;
-        });
+    tbody.innerHTML = `<tr><td colspan="7" class="text-muted py-4"><div class="spinner-border spinner-border-sm text-primary me-2"></div>Đang quét dữ liệu sơ đồ bãi...</td></tr>`;
+    
+    try {
+        // Đảm bảo tham số ?type= trùng khớp với tên tab trên Google Sheets của bạn
+        const res = await fetch(API_URL + "?type=ViTri");
+        localDataViTri = await res.json();
+        renderBảngViTri();
+    } catch (e) {
+        console.error("Lỗi kết nối bảng vị trí:", e);
+        tbody.innerHTML = `<tr><td colspan="7" class="text-danger py-4"><i class="bi bi-exclamation-triangle-fill me-2"></i> Lỗi kết nối dữ liệu bãi!</td></tr>`;
     }
-    tbody.innerHTML = html;
 }
 
-// 3. Hàm xử lý cho nút làm mới (Refresh)
+// 2. Hàm vẽ dữ liệu lên bảng HTML
+function renderBảngViTri() {
+    const tbody = document.getElementById('tbody-quanly-vitri');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+
+    if (!localDataViTri || localDataViTri.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="text-muted py-4">Bãi trống - Chưa có dữ liệu container định vị.</td></tr>`;
+        return;
+    }
+
+    localDataViTri.forEach((row, index) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td class="text-secondary fw-bold">${index + 1}</td>
+            <td class="fw-bold text-primary">${row['Mã container'] || '---'}</td>
+            <td><span class="badge bg-dark text-white px-2 py-1">${row['Bay'] || '---'}</span></td>
+            <td><span class="badge bg-light text-dark border px-2 py-1">${row['Row'] || '---'}</span></td>
+            <td><span class="badge bg-light text-dark border px-2 py-1">${row['Column'] || '---'}</span></td>
+            <td><span class="badge bg-light text-dark border px-2 py-1">${row['Tier'] || '---'}</span></td>
+            <td>
+                <div class="btn-group">
+                    <button class="btn btn-sm btn-outline-info me-1 p-1 d-inline-flex align-items-center justify-content-center" 
+                            style="width: 28px; height: 28px;" onclick="alert('Container: ${row['Mã container']}\\nVị trí: Bay ${row['Bay']} - Row ${row['Row']} - Col ${row['Column']} - Tier ${row['Tier']}')">
+                        <i class="bi bi-info-square"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-warning p-1 d-inline-flex align-items-center justify-content-center" 
+                            style="width: 28px; height: 28px;" onclick="alert('Chức năng chỉnh sửa đang gọi tới dòng dữ liệu số: ${row.rowIndex}')">
+                        <i class="bi bi-pencil-square"></i>
+                    </button>
+                </div>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+// 3. Hàm kích hoạt mở Pop-up thêm vị trí
+function openModalThemViTri() {
+    document.getElementById('form-them-vitri').reset();
+    if (!modalThemViTriObj) {
+        modalThemViTriObj = new bootstrap.Modal(document.getElementById('modalThemViTri'));
+    }
+    modalThemViTriObj.show();
+}
+
+// 4. Hàm xử lý gửi dữ liệu Form lên Google Sheets khi bấm lưu
+async function handleSaveThemViTri(e) {
+    e.preventDefault();
+    
+    const maCont = document.getElementById('txt-vitri-nocont').value.trim().toUpperCase();
+    const bay = document.getElementById('txt-vitri-bay').value.trim().toUpperCase();
+    const rowCoord = document.getElementById('txt-vitri-row').value.trim().toUpperCase();
+    const colCoord = document.getElementById('txt-vitri-col').value.trim().toUpperCase();
+    const tier = document.getElementById('txt-vitri-tier').value.trim();
+
+    showLoading(true);
+    
+    try {
+        await fetch(API_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({
+                'action': 'saveViTri',
+                'typeAction': 'create',
+                'maCont': maCont,
+                'bay': bay,
+                'row': rowCoord,
+                'column': colCoord,
+                'tier': tier
+            })
+        });
+
+        if (modalThemViTriObj) modalThemViTriObj.hide();
+        alert("Định vị vị trí container lên hệ thống thành công!");
+        
+        // Cập nhật tạm thời vào bảng để xem ngay lập tức
+        localDataViTri.push({ 'Mã container': maCont, 'Bay': bay, 'Row': rowCoord, 'Column': colCoord, 'Tier': tier });
+        renderBảngViTri();
+    } catch (err) {
+        console.error(err);
+        alert("Lỗi lưu trữ dữ liệu!");
+    } finally {
+        showLoading(false);
+    }
+}
+
+// 5. Hàm Refresh bảng dữ liệu
 function refreshViTriData() {
     loadDataViTri();
 }
