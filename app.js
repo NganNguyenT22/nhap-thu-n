@@ -1506,7 +1506,7 @@ function renderGiamDinhTable(data) {
         
         // BIỆN PHÁP LOGIC TỰ ĐỘNG ĐỔI THÀNH TÍCH XANH (CÓ) / TÍCH ĐỎ (KHÔNG) ĐỨNG GIỮA Ô
         let badgeRepair = "";
-        if (row['Cần sửa chữa'] === 'CÓ') {
+        if (row['Cần sửa chữa'] === 'CÓ'|| row['Trạng thái'] === 'C') ) {
             badgeRepair = `<div class="text-center text-success fs-5" title="Đủ điều kiện cần sửa chữa"><i class="bi bi-check-circle-fill"></i></div>`;
         } else {
             badgeRepair = `<div class="text-center text-danger fs-5" title="Không cần sửa chữa"><i class="bi bi-x-circle-fill"></i></div>`;
